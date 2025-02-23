@@ -8,6 +8,20 @@
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
+    <form id="search-form">
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Enter search keyword..."
+      />
+      <button type="submit">Search</button>
+    </form>
+
+    <div class="loader" style="display: none">Loading...</div>
+    <div class="gallery"></div>
     <script type="module" src="./main.js"></script>
+    <script type="module" src="./js/pixabay-api.js"></script>
+
+    <script type="module" src="./js/render-functions.js"></script>
   </body>
 </html>
