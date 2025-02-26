@@ -25,56 +25,81 @@ gallery.querySelectorAll('.gallery-image').forEach(img => {
 
 let query = '';
 let page = 1;
+let totalHits = 0;
 const perPage = 40;
 
 form.addEventListener('submit', async event => {
   event.preventDefault();
   query = input.value.trim();
-  page = 1;
+  page = 1; // reset page number when new search is initiated
 
   if (!query) {
     iziToast.error({ title: 'Error', message: 'Please enter a search query!' });
     return;
   }
 
-  gallery.innerHTML = '';
+  gallery.innerHTML = ''; // Clear previous results
   loader.style.display = 'block';
   loadMoreBtn.style.display = 'none';
 
-  const images = await fetchImages(query, page, perPage);
-  loader.style.display = 'none';
+  try {
+    const { hits, totalHits: totalImages } = await fetchImages(
+      query,
+      page,
+      perPage
+    );
+    totalHits = totalImages;
+    loader.style.display = 'none';
 
-  if (images.length === 0) {
-    iziToast.warning({
-      title: 'No Results',
-      message: 'No images found. Try again!',
+    if (hits.length === 0) {
+      iziToast.warning({
+        title: 'No Results',
+        message: 'No images found. Try again!',
+      });
+    } else {
+      renderGallery(hits);
+      loadMoreBtn.style.display = 'block';
+
+      if (totalHits <= perPage) {
+        loadMoreBtn.style.display = 'none'; // Hide load more if there are no more images
+      }
+    }
+  } catch (error) {
+    loader.style.display = 'none';
+    iziToast.error({
+      title: 'Error',
+      message: 'Failed to load images. Please try again later.',
     });
-  } else {
-    renderGallery(images);
-    loadMoreBtn.style.display = 'block';
   }
 });
 
 loadMoreBtn.addEventListener('click', async () => {
-  page++;
-  loader.style.display = 'block';
+  if (page * perPage < totalHits) {
+    page++; // increase page number
 
-  const images = await fetchImages(query, page, perPage);
-  loader.style.display = 'none';
+    loader.style.display = 'block';
 
-  if (images.length === 0) {
-    loadMoreBtn.style.display = 'none';
-    iziToast.info({
-      title: 'End of Results',
-      message: "We're sorry, but you've reached the end of search results.",
-    });
-    return;
+    try {
+      const { hits } = await fetchImages(query, page, perPage);
+      renderGallery(hits);
+      loader.style.display = 'none';
+
+      // Scroll smoothly to the new images
+      window.scrollBy({
+        top:
+          document.querySelector('.gallery').getBoundingClientRect().height * 2,
+        behavior: 'smooth',
+      });
+
+      if (page * perPage >= totalHits) {
+        loadMoreBtn.style.display = 'none'; // Hide load more if it's the last page
+      }
+    } catch (error) {
+      loader.style.display = 'none';
+      iziToast.error({
+        title: 'Error',
+        message: 'Failed to load images. Please try again later.',
+      });
+    }
   }
-
-  renderGallery(images);
-
-  const cardHeight = document
-    .querySelector('.gallery-item')
-    .getBoundingClientRect().height;
-  window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
 });

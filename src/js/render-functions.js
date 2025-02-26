@@ -3,7 +3,9 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 export function renderGallery(images) {
   const gallery = document.querySelector('.gallery');
-  gallery.innerHTML = images
+
+  // Додаємо нові зображення до галереї
+  const galleryItems = images
     .map(
       ({
         webformatURL,
@@ -28,6 +30,10 @@ export function renderGallery(images) {
     )
     .join('');
 
+  // Додаємо нові елементи до існуючої галереї
+  gallery.insertAdjacentHTML('beforeend', galleryItems);
+
+  // Ініціалізуємо SimpleLightbox, оновлюючи його після додавання нових карток
   const lightbox = new SimpleLightbox('.gallery a');
-  lightbox.refresh();
+  lightbox.refresh(); // Оновлюємо SimpleLightbox, щоб обробляти нові елементи
 }
