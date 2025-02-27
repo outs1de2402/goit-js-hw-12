@@ -31,14 +31,14 @@ const perPage = 40;
 form.addEventListener('submit', async event => {
   event.preventDefault();
   query = input.value.trim();
-  page = 1; // reset page number when new search is initiated
+  page = 1;
 
   if (!query) {
     iziToast.error({ title: 'Error', message: 'Please enter a search query!' });
     return;
   }
 
-  gallery.innerHTML = ''; // Clear previous results
+  gallery.innerHTML = '';
   loader.style.display = 'block';
   loadMoreBtn.style.display = 'none';
 
@@ -58,10 +58,8 @@ form.addEventListener('submit', async event => {
       });
     } else {
       renderGallery(hits);
-      loadMoreBtn.style.display = 'block';
-
-      if (totalHits <= perPage) {
-        loadMoreBtn.style.display = 'none'; // Hide load more if there are no more images
+      if (totalHits > perPage) {
+        loadMoreBtn.style.display = 'block';
       }
     }
   } catch (error) {
@@ -75,8 +73,7 @@ form.addEventListener('submit', async event => {
 
 loadMoreBtn.addEventListener('click', async () => {
   if (page * perPage < totalHits) {
-    page++; // increase page number
-
+    page++;
     loader.style.display = 'block';
 
     try {
@@ -84,7 +81,6 @@ loadMoreBtn.addEventListener('click', async () => {
       renderGallery(hits);
       loader.style.display = 'none';
 
-      // Scroll smoothly to the new images
       window.scrollBy({
         top:
           document.querySelector('.gallery').getBoundingClientRect().height * 2,
@@ -92,7 +88,7 @@ loadMoreBtn.addEventListener('click', async () => {
       });
 
       if (page * perPage >= totalHits) {
-        loadMoreBtn.style.display = 'none'; // Hide load more if it's the last page
+        loadMoreBtn.style.display = 'none';
       }
     } catch (error) {
       loader.style.display = 'none';

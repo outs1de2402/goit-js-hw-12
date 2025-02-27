@@ -20,7 +20,7 @@ export async function fetchImages(query, page = 1, perPage = 40) {
       throw new Error('No images found for the given query');
     }
 
-    return response.data.hits;
+    return { hits: response.data.hits, totalHits: response.data.totalHits };
   } catch (error) {
     console.error('Error fetching images:', error.message || error);
     return [];
